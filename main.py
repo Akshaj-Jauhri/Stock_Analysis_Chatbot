@@ -19,16 +19,6 @@ def calculate_EMA(ticker, window):
     data = yf.Ticker(ticker).history(period='1y').Close
     return str(data.rolling(span=window, adjust=False).mean().iloc[-1])
 
-def calculate_RSI(ticker):
-    data = yf.Ticker(ticker).history(period='1y').Close
-    delta = data.diff()
-    up = delta.clip(lower=0)
-    down = -1 * delta.clip(upper=0)
-    ema_up = up.rolling(window=14).mean()
-    ema_down = down.rolling(window=14).mean()
-    rs = ema_up/ema_down
-    return str(100 - (100/(1+rs)).iloc[-1])
-
 def plot_stock_price(ticker):
     data = yf.Ticker(ticker).history(period='1y')
     plt.figure(figsize=(10, 5))
@@ -92,20 +82,6 @@ functions = [
         },
     },
     {
-        'name': 'calculate_RSI',
-        'description': 'Calculate the RSI given the ticker symbol of a company.',
-        'parameters': {
-            'type': 'object',
-            'properties':{
-                'ticker': {
-                    'type': 'string',
-                    'description': 'the stock ticker symbol for a company (for example AAPL for Apple.)'
-                } 
-            },
-            'required': ['ticker']
-        },
-    },
-    {
         'name': 'plot_stock_price',
         'description': 'Plot the stock price given the ticker symbol of a company.',
         'parameters': {
@@ -125,7 +101,6 @@ available_functions = {
     'get_stock_price': get_stock_price,
     'calculate_SMA': calculate_SMA,
     'calculate_EMA': calculate_EMA,
-    'calculate_RSI': calculate_RSI,
     'plot_stock_price': plot_stock_price
 }
 
@@ -152,7 +127,7 @@ if user_input:
         if response_message.get('function_call'):
             function_name = response_message['function_call']['name']
             function_args = json.loads(response_message['function_call']['arguments'])
-            if function_name in ['get_stock_price', 'calculate_RSI', 'plot_stock_price']:
+            if function_name in ['get_stock_price', 'plot_stock_price']:
                 args_dict = {'ticker': function_args.get('ticker')}
             elif function_name in ['calculate_SMA', 'calculate_EMA']:
                 args_dict = {'ticker': function_args.get('ticker'), 'window': function_args.get('window')}
